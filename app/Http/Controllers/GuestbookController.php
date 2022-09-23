@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Guestbook;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class GuestbookController
@@ -13,15 +12,25 @@ use Illuminate\Support\Facades\DB;
 class GuestbookController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $guestbooks = DB::table('guestbooks')->get();
-        $title = 'GuestBook';
-        return view('guestbook.index', compact('guestbooks', 'title'));
+        $guestbooks = Guestbook::paginate();
+
+        return view('guestbook.index', compact('guestbooks'))
+            ->with('i', (request()->input('page', 1) - 1) * $guestbooks->perPage());
     }
 
     /**
@@ -47,11 +56,11 @@ class GuestbookController extends Controller
 
         $input = $request->all();
 
-        if ($file = $request->file('file_name')) {
+        if ($file = $request->file('document')) {
             $destinationPath = public_path('images/');
-            $courseImage = 'file_' . date('YmdHis') . "." . $file->getClientOriginalExtension();
-            $file->move($destinationPath, $courseImage);
-            $input['file_name'] = "$courseImage";
+            $document = 'file_' . date('YmdHis') . "." . $file->getClientOriginalExtension();
+            $file->move($destinationPath, $document);
+            $input['document'] = $document;
         }
 
         Guestbook::create($input);
@@ -97,18 +106,18 @@ class GuestbookController extends Controller
     {
         $guestbooks = Guestbook::find($request->id);
         if (!is_null($guestbooks)) {
-            $input['file_name'] = $guestbooks->file_name;
+            $input['document'] = $guestbooks->document;
         }
 
         $input = $request->all();
-        if ($file_name = $request->file('file_name')) {
+        if ($document = $request->file('document')) {
             $request->validate([
-                'file_name' => 'required|image|mimes:jpeg,png,jpg,gif,svg,pdf|max:2048',
+                'document' => 'required',
             ]);
             $destinationPath = public_path('images/');
-            $file = 'file_' . date('YmdHis') . "." . $file_name->getClientOriginalExtension();
-            $file_name->move($destinationPath, $file);
-            $input['file_name'] = "$file";
+            $file = 'file_' . date('YmdHis') . "." . $document->getClientOriginalExtension();
+            $document->move($destinationPath, $file);
+            $input['document'] = $file;
         }
        
         $guestbook->update($input);
@@ -125,8 +134,14 @@ class GuestbookController extends Controller
     public function destroy($id)
     {
         $guestbook = Guestbook::find($id)->delete();
+        $strRedirectRout = auth()->user()->is_admin == 1 ? 'admin.home' : 'guestbooks.index';
+        return redirect()->route($strRedirectRout)->with('success', 'Record deleted successfully');
+    }
 
-        return redirect()->route('guestbooks.index')
-            ->with('success', 'Guestbook deleted successfully');
+    public function adminApprove(Request $request, $id) {
+        $guestbooks = Guestbook::find($id);
+        $guestbooks->is_approved =  1;
+        $guestbooks->save();
+        return redirect()->route('admin.home')->with('success', 'Record approved successfully');
     }
 }

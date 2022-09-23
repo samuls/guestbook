@@ -1,14 +1,7 @@
 <?php
 
-use App\Http\Controllers\API\HospitalController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\API\RegisterController;
-use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\API\ServiceController;
-use App\Http\Controllers\API\PatientController;
-use App\Http\Controllers\API\PatientServiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,5 +14,6 @@ use App\Http\Controllers\API\PatientServiceController;
 |
 */
 
-Route::post('register', [RegisterController::class, 'register']);
-Route::post('login', [RegisterController::class, 'login']);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});

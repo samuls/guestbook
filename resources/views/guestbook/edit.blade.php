@@ -1,20 +1,17 @@
-@extends('layout.mainlayout')
+@extends('layouts.app')
 
 @section('template_title')
-Edit Guest Book
+    Update Guestbook
 @endsection
 
 @section('content')
-<section class="content-header">
-    <h1>
-        GuestBook
-    </h1>
-    <ol class="breadcrumb">
-        <li><a href="{{ route('home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="active">GuestBook</li>
-    </ol>
-</section>
     <section class="content container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('guestbooks.index') }}">Guestbooks</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            </ol>
+        </nav>
         <div class="">
             <div class="col-md-12">
 

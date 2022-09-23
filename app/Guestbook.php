@@ -2,15 +2,17 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Guestbook
  *
  * @property $id
+ * @property $user_id
  * @property $title
- * @property $file_name
  * @property $description
+ * @property $document
  * @property $is_approved
  * @property $created_at
  * @property $updated_at
@@ -20,8 +22,14 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Guestbook extends Model
 {
+    use HasFactory;
+
     static $rules = [
+		'user_id' => 'required',
+		'title' => 'required',
+		'description' => 'required'
     ];
+    
 
     protected $perPage = 20;
 
@@ -30,8 +38,11 @@ class Guestbook extends Model
      *
      * @var array
      */
-    protected $fillable = ['title','file_name','description','is_approved'];
+    protected $fillable = ['user_id','title','description','document','is_approved'];
 
-
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
 }

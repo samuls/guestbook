@@ -1,6 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
+
+use App\Guestbook;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 class HomeController extends Controller
 {
     /**
@@ -12,6 +17,7 @@ class HomeController extends Controller
     {
         $this->middleware('auth');
     }
+
     /**
      * Show the application dashboard.
      *
@@ -19,18 +25,17 @@ class HomeController extends Controller
      */
     public function index()
     {
-        echo "aaa";exit;
         return view('home');
     }
-  
+
     /**
-     * Show the application dashboard.
+     * Show the application admin dashboard.
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function adminHome()
     {
-        echo "aaa222admin";exit;
-        return view('adminHome');
+        $guestbooks = DB::table('guestbooks')->orderBy('id','desc')->get();
+        return view('adminHome',compact('guestbooks'));
     }
 }
